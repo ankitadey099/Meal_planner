@@ -1,1 +1,2 @@
 # Meal_planner
+The Meal Planner is a smart and user-friendly web application designed to help users organize their daily meals efficiently. It allows users to plan breakfast, lunch, and dinner according to their preferences, health goals, and available ingredients. The system provides personalized meal recommendations, helping users maintain a balanced diet while saving time and reducing food waste.
