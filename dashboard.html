@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🥗 Meal Planner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url("https://hips.hearstapps.com/hmg-prod/images/bbq-protein-bowl-vertical-2-669579382b684.jpg?crop=0.782xw:0.626xh;0.0673xw,0.328xh&resize=640:*");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .overlay {
+            background-color: rgba(104, 223, 204, 0.89);
+            min-height: 100vh;
+            padding: 50px 20px;
+        }
+
+        h1 {
+            font-family: 'Georgia', serif;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        form .form-label {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .card {
+            border-radius: 12px;
+        }
+
+        .card-body h5 {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .card-body p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        button.btn-primary {
+            background-color: #3498db;
+            border-color: #2980b9;
+        }
+
+        button.btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .meal-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .meal-card {
+            background-color: rgba(255,255,255,0.95);
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 235, 205, 0.9);
+            border-color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+  <script src="{{ url_for('static', filename='js/drag_drop.js') }}"></script>
+<div class="overlay container py-4">
+    <h1>Welcome User!</h1>
+    <h2>🍴 Meal Recommender System for You</h2>
+     {% if user_data.goal %}
+  <div class="goal-banner">
+    🎯 Your Health Goal: {{ user_data.goal | replace("_", " ") | title }}
+  </div>
+  {% endif %}
+<form id="ingredientForm">
+  <input type="text" id="ingredientInput" placeholder="Enter ingredients (comma separated)">
+  <button type="submit">Search</button>
+</form>
+
+<ul id="searchResults"></ul>
+
+    <!-- User Input Form -->
+    <div class="card p-4 mb-4 shadow-sm">
+        <h4 class="mb-3">Enter Your Preferences</h4>
+        <form method="POST">
+            <!-- Diet -->
+            <div class="mb-3">
+                <label for="diet" class="form-label">Diet Preference</label>
+                <select class="form-select" name="diet" id="diet" required>
+                    <option value="">-- Select --</option>
+                    <option value="vegetarian" {% if user_data.get("diet") == "vegetarian" %}selected{% endif %}>Vegetarian</option>
+                    <option value="non-vegetarian" {% if user_data.get("diet") == "non-vegetarian" %}selected{% endif %}>Non-Vegetarian</option>
+                </select>
+            </div>
+
+            <!-- Allergies -->
+            <div class="mb-3">
+                <label for="allergies" class="form-label">Allergies (comma separated)</label>
+                <input type="text" class="form-control" name="allergies" id="allergies"
+                       placeholder="e.g. milk, nuts" value="{{ user_data.get('allergies', '') | join(', ') }}">
+            </div>
+            <!--Goal Section -->
+            <div class="mb-3">
+         <label for="goal" class="form-label">Health Goal</label>
+        <select class="form-select" name="goal" id="goal" required>
+         <option value="">-- Select --</option>
+        <option value="weight_loss" {% if user_data.get("goal") == "weight_loss" %}selected{% endif %}>Weight Loss</option>
+        <option value="muscle_gain" {% if user_data.get("goal") == "muscle_gain" %}selected{% endif %}>Muscle Gain</option>
+        <option value="maintenance" {% if user_data.get("goal") == "maintenance" %}selected{% endif %}>Maintenance</option>
+        <option value="keto" {% if user_data.get("goal") == "keto" %}selected{% endif %}>Keto (Low Carb)</option>
+         </select>
+            </div>
+
+
+            <!-- Calories -->
+            <div class="mb-3">
+                <label for="calories" class="form-label">Target Calories</label>
+                <input type="number" class="form-control" name="calories" id="calories"
+                       placeholder="e.g. 400" value="{{ user_data.get('calories', '') }}">
+            </div>
+
+            <!-- Meal Type -->
+            <div class="mb-3">
+                <label for="meal_type" class="form-label">Meal Type</label>
+                <select class="form-select" name="meal_type" id="meal_type" required>
+                    <option value="">-- Select --</option>
+                    <option value="Breakfast" {% if user_data.get("meal_type") == "Breakfast" %}selected{% endif %}>Breakfast</option>
+                    <option value="Lunch" {% if user_data.get("meal_type") == "Lunch" %}selected{% endif %}>Lunch</option>
+                    <option value="Dinner" {% if user_data.get("meal_type") == "Dinner" %}selected{% endif %}>Dinner</option>
+                    <option value="Snack" {% if user_data.get("meal_type") == "Snack" %}selected{% endif %}>Snack</option>
+                </select>
+            </div>
+            <div class="mb-3">
+    <label for="include_ingredients">Include Ingredients (comma separated)</label>
+    <input type="text" class="form-control" name="include_ingredients" id="include_ingredients"
+           placeholder="e.g., chicken, spinach" value="{{ user_data.get('include_ingredients','') }}">
+</div>
+
+<div class="mb-3">
+    <label for="exclude_ingredients">Exclude Ingredients (comma separated)</label>
+    <input type="text" class="form-control" name="exclude_ingredients" id="exclude_ingredients"
+           placeholder="e.g., nuts, dairy" value="{{ user_data.get('exclude_ingredients','') }}">
+</div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100">Get Recommendations</button>
+        </form>
+    </div>
+<div class="week-schedule">
+  {% for day in week_days %}
+  <div class="day-column" data-day="{{ day }}">
+    <h3>{{ day }}</h3>
+    <div class="meal-slot" data-slot="breakfast"></div>
+    <div class="meal-slot" data-slot="lunch"></div>
+    <div class="meal-slot" data-slot="dinner"></div>
+  </div>
+  {% endfor %}
+</div>
+
+    <!-- Recommended Meals -->
+    <h3 class="text-center mb-3">Recommended Meals</h3>
+
+    {% if recommended_meals %}
+        <div class="row">
+            {% for meal in recommended_meals %}
+                <div class="col-md-4">
+                    <div class="meal-card card mb-4 shadow-sm">
+                        {% if meal.image_url %}
+                        <img src="{{ meal.image_url }}" alt="{{ meal.name }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ meal.name }}</h5>
+                            <p class="card-text">
+                                <strong>Type:</strong> {{ meal.meal_type }} <br>
+                                <strong>Diet:</strong> {{ meal.diet }} <br>
+                                <strong>Calories:</strong> {{ meal.calories }} kcal <br>
+                                <strong>Protein:</strong> {{ meal.protein }} g |
+                                <strong>Carbs:</strong> {{ meal.carbs }} g |
+                                <strong>Fat:</strong> {{ meal.fat }} g <br>
+                                <strong>Ingredients:</strong> {{ meal.ingredients | join(', ') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            No meals found. Please adjust your preferences and try again.
+        </div>
+    {% endif %}
+
+
+
+</div>
+
+  <footer>
+    &copy; 2025 Meal Planner | Stay Healthy 💪
+  </footer>
+
+</body>
+</html>
