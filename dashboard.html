@@ -1,221 +1,169 @@
-<!DOCTYPE html>
-<!--suppress ALL -->
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>🥗 Meal Planner</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url("https://hips.hearstapps.com/hmg-prod/images/bbq-protein-bowl-vertical-2-669579382b684.jpg?crop=0.782xw:0.626xh;0.0673xw,0.328xh&resize=640:*");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .overlay {
-            background-color: rgba(104, 223, 204, 0.89);
-            min-height: 100vh;
-            padding: 50px 20px;
-        }
-
-        h1 {
-            font-family: 'Georgia', serif;
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 40px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
-
-        form .form-label {
-            font-weight: 600;
-            color: #34495e;
-        }
-
-        .card {
-            border-radius: 12px;
-        }
-
-        .card-body h5 {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .card-body p {
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        button.btn-primary {
-            background-color: #3498db;
-            border-color: #2980b9;
-        }
-
-        button.btn-primary:hover {
-            background-color: #2980b9;
-        }
-
-        .meal-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .meal-card {
-            background-color: rgba(255,255,255,0.95);
-            padding: 0;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .alert-warning {
-            background-color: rgba(255, 235, 205, 0.9);
-            border-color: #ffcc00;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meal plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #eef3ef;
+    --card: #ffffff;
+    --ink: #1c2a25;
+    --muted: #5d6e66;
+    --line: #d5e0d9;
+    --green: #1f5c4a;
+    --green-dark: #164538;
+    --warn-bg: #fff1d6;
+    --warn-ink: #6b4300;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font-family: "Figtree", system-ui, sans-serif; line-height: 1.5; }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+  a { color: var(--green); }
+  h1 { font-size: 2rem; margin: 8px 0 4px; font-weight: 800; }
+  h2 { font-size: 1.25rem; margin: 0 0 12px; }
+  .lede { color: var(--muted); margin: 0 0 24px; max-width: 60ch; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+           padding: 20px; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+  label { display: block; font-size: .9rem; font-weight: 500; }
+  input, select { width: 100%; margin-top: 4px; padding: 9px 10px; font: inherit;
+                  border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 3px solid #7fb9a3; outline-offset: 1px; }
+  button { font: inherit; font-weight: 700; cursor: pointer; border-radius: 6px; }
+  .primary { margin-top: 16px; padding: 11px 20px; border: 0; background: var(--green); color: #fff; }
+  .primary:hover { background: var(--green-dark); }
+  .flash { background: var(--warn-bg); color: var(--warn-ink); padding: 10px 14px;
+           border-radius: 6px; margin-bottom: 12px; }
+  .targets { display: flex; flex-wrap: wrap; gap: 28px; margin: 0 0 24px; }
+  .targets strong { display: block; font-size: 1.6rem; line-height: 1.1; }
+  .targets span { color: var(--muted); font-size: .9rem; }
+  .day { margin-bottom: 24px; }
+  .day header { display: flex; justify-content: space-between; align-items: baseline;
+                flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .totals { color: var(--muted); font-size: .9rem; }
+  .row { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center;
+         padding: 12px 0; border-top: 1px solid var(--line); }
+  .row img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; background: var(--line); }
+  .slot { color: var(--muted); font-size: .85rem; }
+  .name { font-weight: 700; }
+  .macros { color: var(--muted); font-size: .88rem; }
+  .swap { padding: 7px 14px; background: #fff; color: var(--green); border: 1px solid var(--green); }
+  .swap:hover { background: #e4f0ea; }
+  .grocery { columns: 2 220px; margin: 0; padding: 0; list-style: none; }
+  .grocery li { padding: 3px 0; break-inside: avoid; }
+  .count { color: var(--muted); }
+  @media print { .panel.form, .swap, .back { display: none; } body { background: #fff; } }
+</style>
 </head>
 <body>
-  <script src="{{ url_for('static', filename='js/drag_drop.js') }}"></script>
-<div class="overlay container py-4">
-    <h1>Welcome User!</h1>
-    <h2>🍴 Meal Recommender System for You</h2>
-     {% if user_data.goal %}
-  <div class="goal-banner">
-    🎯 Your Health Goal: {{ user_data.goal | replace("_", " ") | title }}
-  </div>
-  {% endif %}
-<form id="ingredientForm">
-  <input type="text" id="ingredientInput" placeholder="Enter ingredients (comma separated)">
-  <button type="submit">Search</button>
-</form>
+<main>
+  <a class="back" href="{{ url_for('home') }}">Back to recommendations</a>
+  <h1>Build your meal plan</h1>
+  <p class="lede">Enter your details and we work out a daily calorie target, then pick a breakfast, lunch, snack and dinner that fit it.</p>
 
-<ul id="searchResults"></ul>
-
-    <!-- User Input Form -->
-    <div class="card p-4 mb-4 shadow-sm">
-        <h4 class="mb-3">Enter Your Preferences</h4>
-        <form method="POST">
-            <!-- Diet -->
-            <div class="mb-3">
-                <label for="diet" class="form-label">Diet Preference</label>
-                <select class="form-select" name="diet" id="diet" required>
-                    <option value="">-- Select --</option>
-                    <option value="vegetarian" {% if user_data.get("diet") == "vegetarian" %}selected{% endif %}>Vegetarian</option>
-                    <option value="non-vegetarian" {% if user_data.get("diet") == "non-vegetarian" %}selected{% endif %}>Non-Vegetarian</option>
-                </select>
-            </div>
-
-            <!-- Allergies -->
-            <div class="mb-3">
-                <label for="allergies" class="form-label">Allergies (comma separated)</label>
-                <input type="text" class="form-control" name="allergies" id="allergies"
-                       placeholder="e.g. milk, nuts" value="{{ user_data.get('allergies', '') | join(', ') }}">
-            </div>
-            <!--Goal Section -->
-            <div class="mb-3">
-         <label for="goal" class="form-label">Health Goal</label>
-        <select class="form-select" name="goal" id="goal" required>
-         <option value="">-- Select --</option>
-        <option value="weight_loss" {% if user_data.get("goal") == "weight_loss" %}selected{% endif %}>Weight Loss</option>
-        <option value="muscle_gain" {% if user_data.get("goal") == "muscle_gain" %}selected{% endif %}>Muscle Gain</option>
-        <option value="maintenance" {% if user_data.get("goal") == "maintenance" %}selected{% endif %}>Maintenance</option>
-        <option value="keto" {% if user_data.get("goal") == "keto" %}selected{% endif %}>Keto (Low Carb)</option>
-         </select>
-            </div>
-
-
-            <!-- Calories -->
-            <div class="mb-3">
-                <label for="calories" class="form-label">Target Calories</label>
-                <input type="number" class="form-control" name="calories" id="calories"
-                       placeholder="e.g. 400" value="{{ user_data.get('calories', '') }}">
-            </div>
-
-            <!-- Meal Type -->
-            <div class="mb-3">
-                <label for="meal_type" class="form-label">Meal Type</label>
-                <select class="form-select" name="meal_type" id="meal_type" required>
-                    <option value="">-- Select --</option>
-                    <option value="Breakfast" {% if user_data.get("meal_type") == "Breakfast" %}selected{% endif %}>Breakfast</option>
-                    <option value="Lunch" {% if user_data.get("meal_type") == "Lunch" %}selected{% endif %}>Lunch</option>
-                    <option value="Dinner" {% if user_data.get("meal_type") == "Dinner" %}selected{% endif %}>Dinner</option>
-                    <option value="Snack" {% if user_data.get("meal_type") == "Snack" %}selected{% endif %}>Snack</option>
-                </select>
-            </div>
-            <div class="mb-3">
-    <label for="include_ingredients">Include Ingredients (comma separated)</label>
-    <input type="text" class="form-control" name="include_ingredients" id="include_ingredients"
-           placeholder="e.g., chicken, spinach" value="{{ user_data.get('include_ingredients','') }}">
-</div>
-
-<div class="mb-3">
-    <label for="exclude_ingredients">Exclude Ingredients (comma separated)</label>
-    <input type="text" class="form-control" name="exclude_ingredients" id="exclude_ingredients"
-           placeholder="e.g., nuts, dairy" value="{{ user_data.get('exclude_ingredients','') }}">
-</div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary w-100">Get Recommendations</button>
-        </form>
-    </div>
-<div class="week-schedule">
-  {% for day in week_days %}
-  <div class="day-column" data-day="{{ day }}">
-    <h3>{{ day }}</h3>
-    <div class="meal-slot" data-slot="breakfast"></div>
-    <div class="meal-slot" data-slot="lunch"></div>
-    <div class="meal-slot" data-slot="dinner"></div>
-  </div>
+  {% for message in get_flashed_messages() %}
+    <div class="flash" role="alert">{{ message }}</div>
   {% endfor %}
-</div>
 
-    <!-- Recommended Meals -->
-    <h3 class="text-center mb-3">Recommended Meals</h3>
+  <form class="panel form" method="post" action="{{ url_for('plan') }}">
+    <div class="grid">
+      <label>Sex
+        <select name="sex" required>
+          <option value="male" {{ 'selected' if form.get('sex') == 'male' }}>Male</option>
+          <option value="female" {{ 'selected' if form.get('sex') == 'female' }}>Female</option>
+        </select>
+      </label>
+      <label>Age
+        <input type="number" name="age" min="14" max="90" value="{{ form.get('age', '') }}" required>
+      </label>
+      <label>Weight (kg)
+        <input type="number" name="weight" min="30" max="250" step="0.1" value="{{ form.get('weight', '') }}" required>
+      </label>
+      <label>Height (cm)
+        <input type="number" name="height" min="120" max="230" value="{{ form.get('height', '') }}" required>
+      </label>
+      <label>Activity
+        <select name="activity">
+          {% for value, text in [('sedentary', 'Little or no exercise'), ('light', 'Exercise 1-3 days a week'),
+                                 ('moderate', 'Exercise 3-5 days a week'), ('active', 'Exercise 6-7 days a week')] %}
+            <option value="{{ value }}" {{ 'selected' if form.get('activity') == value }}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Goal
+        <select name="goal">
+          {% for value, text in [('maintain', 'Maintain weight'), ('weight_loss', 'Lose weight'), ('muscle_gain', 'Build muscle')] %}
+            <option value="{{ value }}" {{ 'selected' if form.get('goal') == value }}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Diet
+        <select name="diet">
+          {% for value, text in [('', 'No restriction'), ('vegetarian', 'Vegetarian'), ('vegan', 'Vegan')] %}
+            <option value="{{ value }}" {{ 'selected' if form.get('diet') == value }}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Allergies
+        <input type="text" name="allergies" placeholder="nuts, dairy, gluten" value="{{ form.get('allergies', '') }}">
+      </label>
+      <label>Plan length
+        <select name="days">
+          <option value="1" {{ 'selected' if form.get('days') == '1' }}>1 day</option>
+          <option value="7" {{ 'selected' if form.get('days') == '7' }}>7 days</option>
+        </select>
+      </label>
+    </div>
+    <button class="primary" type="submit">Create plan</button>
+  </form>
 
-    {% if recommended_meals %}
-        <div class="row">
-            {% for meal in recommended_meals %}
-                <div class="col-md-4">
-                    <div class="meal-card card mb-4 shadow-sm">
-                        {% if meal.image_url %}
-                        <img src="{{ meal.image_url }}" alt="{{ meal.name }}">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ meal.name }}</h5>
-                            <p class="card-text">
-                                <strong>Type:</strong> {{ meal.meal_type }} <br>
-                                <strong>Diet:</strong> {{ meal.diet }} <br>
-                                <strong>Calories:</strong> {{ meal.calories }} kcal <br>
-                                <strong>Protein:</strong> {{ meal.protein }} g |
-                                <strong>Carbs:</strong> {{ meal.carbs }} g |
-                                <strong>Fat:</strong> {{ meal.fat }} g <br>
-                                <strong>Ingredients:</strong> {{ meal.ingredients | join(', ') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-warning text-center">
-            No meals found. Please adjust your preferences and try again.
-        </div>
-    {% endif %}
+  {% if days %}
+    <div class="targets">
+      <div><strong>{{ targets.daily }} kcal</strong><span>daily target</span></div>
+      <div><strong>{{ targets.bmr }} kcal</strong><span>at rest (BMR)</span></div>
+      <div><strong>{{ targets.tdee }} kcal</strong><span>with your activity</span></div>
+    </div>
 
+    {% for day in days %}
+      {% set day_index = loop.index0 %}
+      <section class="panel day">
+        <header>
+          <h2>{{ day.label }}</h2>
+          <span class="totals">{{ day.totals.calories }} kcal · {{ day.totals.protein }}g protein · {{ day.totals.carbs }}g carbs · {{ day.totals.fat }}g fat</span>
+        </header>
+        {% for item in day.meals %}
+          <div class="row">
+            <img src="{{ item.meal.image_url }}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+            <div>
+              <div class="slot">{{ item.type }}</div>
+              <div class="name">{{ item.meal.name }}</div>
+              <div class="macros">{{ item.meal.calories }} kcal · {{ item.meal.protein }}g protein · {{ item.meal.carbs }}g carbs · {{ item.meal.fat }}g fat</div>
+            </div>
+            <form method="post" action="{{ url_for('swap') }}">
+              <input type="hidden" name="day" value="{{ day_index }}">
+              <input type="hidden" name="meal_type" value="{{ item.type }}">
+              <button class="swap" type="submit">Swap meal</button>
+            </form>
+          </div>
+        {% endfor %}
+      </section>
+    {% endfor %}
 
-
-</div>
-
-  <footer>
-    &copy; 2025 Meal Planner | Stay Healthy 💪
-  </footer>
-
+    <section class="panel">
+      <h2>Grocery list</h2>
+      <ul class="grocery">
+        {% for ingredient, count in grocery %}
+          <li>{{ ingredient }}{% if count > 1 %} <span class="count">(used in {{ count }} meals)</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+</main>
 </body>
 </html>
